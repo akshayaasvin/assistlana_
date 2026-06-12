@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Job Portal | Assistlana</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+body{font-family:'Inter',sans-serif;background:#f8fafc}
+.glass-card{background:#fff;border:1px solid #e5e7eb}
+.job-card:hover{transform:translateY(-4px)}
+.view-section{display:none}
+.active-view{display:block}
+</style>
+</head>
+
+<body class="pb-20">
+
+<nav class="sticky top-0 bg-white border-b px-6 py-3 flex justify-between">
+  <h1 class="font-black text-blue-600 cursor-pointer" onclick="navigateTo('seeker')">Assistlana Jobs</h1>
+  <button onclick="checkAdminAuth()" class="font-bold text-slate-600">Admin</button>
+</nav>
+
+<!-- JOB SEEKER -->
+<main id="view-seeker" class="view-section active-view max-w-6xl mx-auto px-4 mt-6">
+  <input id="search-input" oninput="filterJobs()" placeholder="Search jobs..." class="w-full p-4 border rounded-xl mb-6"/>
+  <div id="job-container" class="grid md:grid-cols-2 gap-4"></div>
+</main>
+
+<!-- ADMIN -->
+<main id="view-admin" class="view-section max-w-6xl mx-auto px-4 mt-6">
+  <div class="flex justify-between mb-4">
+    <h2 class="text-2xl font-black">Admin Panel</h2>
+    <button onclick="openFormModal()" class="bg-blue-600 text-white px-4 py-2 rounded-xl">Post Job</button>
+  </div>
+
+  <table class="w-full border">
+    <thead class="bg-slate-100">
+      <tr>
+        <th class="p-3 text-left">Job</th>
+        <th class="p-3 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="admin-table-body"></tbody>
+  </table>
+</main>
+
+<!-- JOB FORM -->
+<div id="form-modal" class="fixed inset-0 hidden bg-black/50 flex items-center justify-center">
+  <form id="job-form" class="bg-white p-6 rounded-xl w-full max-w-xl space-y-3">
+    <input type="hidden" id="edit-job-id"/>
+    <input id="job-title" required placeholder="Title" class="w-full p-3 border rounded"/>
+    <input id="job-company" required placeholder="Company" class="w-full p-3 border rounded"/>
+    <input id="job-location" required placeholder="Location" class="w-full p-3 border rounded"/>
+    <input id="job-salary" required type="number" placeholder="Salary" class="w-full p-3 border rounded"/>
+    <select id="job-salary-unit" class="w-full p-3 border rounded">
+      <option value="Monthly">Monthly</option>
+      <option value="LPA">LPA</option>
+    </select>
+    <input id="job-link" required placeholder="Apply Link" class="w-full p-3 border rounded"/>
+    <textarea id="job-description" placeholder="Description" class="w-full p-3 border rounded"></textarea>
+
+    <div class="flex gap-3">
+      <button class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+      <button type="button" onclick="closeModal('form-modal')" class="bg-slate-200 px-4 py-2 rounded">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, collection, getDocs, doc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAh7yeCvEdVn_NjfP5CpHhavz36k2WJxLc",
+  authDomain: "jobboard-b6192.firebaseapp.com",
+  projectId: "jobboard-b6192"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_UID = "kaDcgKDWLVcknQJn34DgsWuEUGJ3";
+let currentUser = null;
+let jobs = [];
+
+onAuthStateChanged(auth, u => currentUser = u);
+
+async function loadJobsFromFirebase() {
+  const snap = await getDocs(collection(db, "jobs"));
+  jobs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(j => j.enabled !== false)
+    .sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+  renderSeeker();
+  renderAdmin();
+}
+loadJobsFromFirebase();
+
+window.filterJobs = () => {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  renderJobCards(jobs.filter(j => j.title.toLowerCase().includes(q)));
+};
+
+window.renderJobCards = list => {
+  document.getElementById('job-container').innerHTML = list.map(j=>`
+    <div class="job-card glass-card p-5 rounded-xl cursor-pointer"
+      onclick="window.open('job-detail.html?id=${j.id}','_blank')">
+      <h3 class="font-bold">${j.title}</h3>
+      <p class="text-sm text-slate-500">${j.company} • ${j.location}</p>
+      <p class="font-bold text-blue-600 mt-2">
+        ${j.salaryUnit==='LPA'?j.salary+' LPA':'₹'+j.salary}
+      </p>
+    </div>`).join('');
+};
+
+window.renderSeeker = () => filterJobs();
+
+window.renderAdmin = () => {
+  document.getElementById('admin-table-body').innerHTML = jobs.map(j=>`
+    <tr>
+      <td class="p-3">${j.title}</td>
+      <td class="p-3 text-right">
+        <button onclick="openFormModal('${j.id}')">✏️</button>
+        <button onclick="deleteJob('${j.id}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+};
+
+window.deleteJob = async id => {
+  if(confirm("Delete job?")){
+    await setDoc(doc(db,"jobs",id),{enabled:false},{merge:true});
+    loadJobsFromFirebase();
+  }
+};
+
+document.getElementById('job-form').onsubmit = async e => {
+  e.preventDefault();
+  const id = edit-job-id.value || Date.now().toString();
+  await setDoc(doc(db,"jobs",id),{
+    id,
+    title: job-title.value,
+    company: job-company.value,
+    location: job-location.value,
+    salary: Number(job-salary.value),
+    salaryUnit: job-salary-unit.value,
+    link: job-link.value,
+    description: job-description.value,
+    enabled:true,
+    createdAt: serverTimestamp()
+  },{merge:true});
+
+  closeModal('form-modal');
+  loadJobsFromFirebase();
+};
+
+window.navigateTo = v => {
+  document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('active-view'));
+  document.getElementById(`view-${v}`).classList.add('active-view');
+};
+
+window.checkAdminAuth = () => {
+  if(currentUser?.uid===ADMIN_UID) navigateTo('admin');
+  else alert("Admin login required");
+};
+window.openFormModal = (id = null) => {
+  document.getElementById('job-form').reset();
+  document.getElementById('edit-job-id').value = id || "";
+
+  if (id) {
+    const j = jobs.find(x => x.id === id);
+    if (!j) return;
+
+    document.getElementById('job-title').value = j.title;
+    document.getElementById('job-company').value = j.company;
+    document.getElementById('job-location').value = j.location;
+    document.getElementById('job-salary').value = j.salary;
+    document.getElementById('job-salary-unit').value = j.salaryUnit;
+    document.getElementById('job-link').value = j.link;
+    document.getElementById('job-description').value = j.description;
+  }
+
+  document.getElementById('form-modal').classList.remove('hidden');
+};
+
+
+window.closeModal = id => document.getElementById(id).classList.add('hidden');
+</script>
+
+</body>
+</html>

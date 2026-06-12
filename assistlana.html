@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistlana | Professional Career Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .job-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.1);
+        }
+        .view-section { display: none; }
+        .active-view { display: block; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        input[type=range] { accent-color: #2563eb; }
+        .loading-spinner { border-top-color: #2563eb; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .ql-container { min-height: 180px; }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+
+    <nav class="sticky top-0 z-[100] glass-card border-b px-6 py-2 mb-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('seeker')">
+                <img src="logo.png" alt="Assistlana Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+                <div class="hidden sm:block border-l pl-3 border-slate-200">
+                    <h1 class="text-sm font-extrabold text-slate-800 leading-none">Assistlana</h1>
+                    <span class="text-[9px] uppercase tracking-widest text-blue-600 font-bold">Placements & Consultancy</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex gap-4">
+                    <button onclick="navigateTo('seeker')" id="nav-seeker" class="text-sm font-bold text-blue-600 transition border-b-2 border-blue-600 pb-1">Browse Jobs</button>
+                    <button onclick="window.location.href='growth-path.html'" id="nav-growth" class="text-sm font-bold text-slate-500 hover:text-blue-600 transition">Growth Path</button>
+                    <button onclick="checkAdminAuth()" id="nav-admin" class="text-sm font-bold text-slate-500 hover:text-blue-600 transition">Admin Panel</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- JOB SEEKER VIEW -->
+    <main id="view-seeker" class="view-section active-view max-w-7xl mx-auto px-4 fade-in">
+        <div class="text-center mb-10">
+            <h2 class="text-4xl font-black text-slate-900 mb-2">Find Your Future Role</h2>
+            <p class="text-slate-500 max-w-xl mx-auto">Explore premium opportunities curated just for you by Assistlana.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <aside class="lg:col-span-1 space-y-6">
+                <div class="glass-card rounded-2xl p-6 sticky top-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">Filters</h3>
+                        <button onclick="resetAllFilters()" class="text-[10px] font-bold text-blue-600 hover:underline">Reset All</button>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Designation</label>
+                            <input type="text" id="filter-designation" oninput="filterJobs()" placeholder="e.g. Developer" class="w-full text-sm px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Location</label>
+                            <input type="text" id="filter-location" oninput="filterJobs()" placeholder="e.g. Bangalore" class="w-full text-sm px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Work Type</label>
+                            <select id="filter-type" onchange="filterJobs()" class="w-full text-sm px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                                <option value="">All Types</option>
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Internship">Internship</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Work Mode</label>
+                            <select id="filter-mode" onchange="filterJobs()" class="w-full text-sm px-3 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                                <option value="">All Modes</option>
+                                <option value="Remote">Remote</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="On-site">On-site</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-xs font-bold text-slate-400 uppercase">Min Salary</label>
+                                <select id="filter-salary-unit" onchange="resetSalaryRange(); filterJobs()" class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded outline-none">
+                                    <option value="Monthly">Monthly (₹)</option>
+                                    <option value="LPA">LPA (₹)</option>
+                                </select>
+                            </div>
+                            <input type="range" id="filter-salary" min="0" max="200000" step="5000" value="0" oninput="updateSalaryLabel(this.value); filterJobs()" class="w-full cursor-pointer">
+                            <div class="flex justify-between text-xs font-bold text-blue-600 mt-2">
+                                <span id="salary-min-label">₹0</span>
+                                <span id="salary-val">₹0</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2 italic">*Jobs without disclosed salary always included</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <div class="lg:col-span-3 space-y-6">
+                <div class="relative group">
+                    <input type="text" id="search-input" oninput="filterJobs()" placeholder="Search by title, company, or keywords..." class="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all group-hover:border-blue-200">
+                    <div class="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300">🔍</div>
+                </div>
+                <div id="job-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADMIN PANEL VIEW -->
+    <main id="view-admin" class="view-section max-w-7xl mx-auto px-4 fade-in">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900">Admin Dashboard</h2>
+                <div id="admin-user-info" class="text-sm text-blue-600 font-medium"></div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openFormModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg">Post New Job</button>
+                <button onclick="handleLogout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-6 py-3 rounded-xl font-bold transition">Logout</button>
+            </div>
+        </div>
+        <div class="glass-card rounded-2xl overflow-hidden border border-slate-200">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50/80 border-b">
+                    <tr>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Job Details</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-center">Compensation</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body" class="divide-y"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="fixed inset-0 z-[300] hidden bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center text-white text-3xl font-bold mb-4">🔐</div>
+                <h3 class="text-2xl font-bold text-slate-800">Admin Secure Login</h3>
+                <p class="text-slate-500 text-sm">Strict UID Verification Active</p>
+            </div>
+            <div class="space-y-4">
+                <input type="email" id="login-email" placeholder="Email" class="w-full px-5 py-4 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="login-password" placeholder="Password" class="w-full px-5 py-4 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="login-btn" onclick="performFirebaseLogin()" class="w-full bg-slate-900 hover:bg-black text-white py-4 rounded-xl font-bold transition flex items-center justify-center gap-3">
+                    <span id="login-btn-text">Sign In</span>
+                    <div id="login-spinner" class="hidden w-5 h-5 border-2 border-white rounded-full loading-spinner"></div>
+                </button>
+                <button onclick="closeModal('login-modal')" class="w-full text-slate-400 text-sm font-medium">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOB FORM MODAL (enhanced with "Not Disclosed" checkbox) -->
+    <div id="form-modal" class="fixed inset-0 z-[250] hidden bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8 rounded-3xl shadow-2xl">
+            <form id="job-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" id="edit-job-id">
+                <h3 id="form-title" class="col-span-full text-2xl font-black text-slate-800">Post Opportunity</h3>
+                <input type="text" id="job-title" required placeholder="Job Title *" class="w-full px-4 py-3 border rounded-xl">
+                <input type="text" id="job-company" required placeholder="Company Name *" class="w-full px-4 py-3 border rounded-xl">
+                <select id="job-type" class="w-full px-4 py-3 border rounded-xl">
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Internship">Internship</option>
+                </select>
+                <select id="job-mode" class="w-full px-4 py-3 border rounded-xl">
+                    <option value="On-site">On-site</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+                
+                <!-- Salary group with "Not Disclosed" option -->
+                <div class="col-span-full md:col-span-1 flex flex-col gap-2">
+                    <div class="flex gap-2 items-center">
+                        <select id="job-salary-unit" class="w-1/2 border rounded-xl px-3 py-3 bg-white">
+                            <option value="Monthly">Monthly (₹)</option>
+                            <option value="LPA">LPA (₹)</option>
+                        </select>
+                        <input type="text" id="job-salary" placeholder="Amount (e.g. 35000 or 4.5)" class="w-1/2 px-4 py-3 border rounded-xl">
+                    </div>
+                    <label class="flex items-center gap-2 text-sm text-slate-600 mt-1">
+                        <input type="checkbox" id="salary-not-disclosed" class="w-4 h-4 rounded border-slate-300 focus:ring-blue-500">
+                        <span>Salary not disclosed (show "As Per Industry Standards")</span>
+                    </label>
+                </div>
+                
+                <input type="text" id="job-experience" required placeholder="Experience (e.g. 0-2 years)" class="w-full px-4 py-3 border rounded-xl">
+                <input type="text" id="job-location" required placeholder="Location (e.g. Bangalore, Remote)" class="w-full px-4 py-3 border rounded-xl">
+                <input type="url" id="job-link" required placeholder="Application Link (URL) *" class="col-span-full border rounded-xl p-3">
+                <div class="col-span-full">
+                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Job Description (Rich Text)</label>
+                    <div id="job-description" class="border rounded-xl bg-white min-h-[200px]"></div>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold transition">Save Job</button>
+                <button type="button" onclick="closeModal('form-modal')" class="bg-slate-100 hover:bg-slate-200 py-4 rounded-xl font-bold transition">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[500] pointer-events-none transform translate-y-20 opacity-0 transition-all duration-300">
+        <div id="toast-msg" class="bg-slate-900 text-white px-8 py-3 rounded-full shadow-2xl font-bold text-sm">Action successful!</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAh7yeCvEdVn_NjfP5CpHhavz36k2WJxLc",
+            authDomain: "jobboard-b6192.firebaseapp.com",
+            projectId: "jobboard-b6192",
+            storageBucket: "jobboard-b6192.firebasestorage.app",
+            messagingSenderId: "619706595996",
+            appId: "1:619706595996:web:8a5b44371c9c6e6b814b59"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const ADMIN_UID = "kaDcgKDWLVcknQJn34DgsWuEUGJ3";
+
+        let currentUser = null;
+        let jobs = [];
+        let quill = null;
+
+        // Helper: Format salary for display (returns string or "As Per Industry Standards")
+        function formatSalary(job) {
+            if (!job.salary || job.salary === "" || job.salary === "0" || parseFloat(job.salary) <= 0) {
+                return "As Per Industry Standards";
+            }
+            const numericSal = parseFloat(job.salary);
+            if (isNaN(numericSal)) return "As Per Industry Standards";
+            if (job.salaryUnit === 'LPA') return numericSal + ' LPA';
+            return '₹' + numericSal.toLocaleString('en-IN');
+        }
+
+        // Load jobs from Firestore
+        async function loadJobsFromFirebase() {
+            try {
+                const q = query(collection(db, "jobs"), orderBy("postedAt", "desc"));
+                const snapshot = await getDocs(q);
+                jobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(j => {
+                    // Clean up salary consistency
+                    if (!j.salary || j.salary === "0") j.salary = null;
+                    if (j.salary === null || j.salary === undefined) j.salaryNotDisclosed = true;
+                    return true;
+                });
+                filterJobs();
+                renderAdmin();
+            } catch (error) {
+                console.error("Job load failed:", error);
+                showToast("Failed to load jobs", true);
+            }
+        }
+
+        // FILTER jobs with proper salary handling (null salaries always pass)
+        window.filterJobs = () => {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const designation = document.getElementById('filter-designation').value.toLowerCase();
+            const location = document.getElementById('filter-location').value.toLowerCase();
+            const type = document.getElementById('filter-type').value;
+            const mode = document.getElementById('filter-mode').value;
+            let minSalary = parseFloat(document.getElementById('filter-salary').value);
+            const filterUnit = document.getElementById('filter-salary-unit').value;
+
+            if (isNaN(minSalary)) minSalary = 0;
+
+            const filtered = jobs.filter(j => {
+                const matchesSearch = (j.title?.toLowerCase().includes(search) || j.company?.toLowerCase().includes(search));
+                const matchesDesignation = !designation || j.title?.toLowerCase().includes(designation);
+                const matchesLocation = !location || (j.location && j.location.toLowerCase().includes(location));
+                const matchesType = !type || j.type === type;
+                const matchesMode = !mode || j.mode === mode;
+
+                // Salary matching: if job has no valid salary (null, 0, undefined) -> always pass
+                let matchesSalary = true;
+                const jobSalRaw = j.salary;
+                if (jobSalRaw && parseFloat(jobSalRaw) > 0) {
+                    const jobSalNum = parseFloat(jobSalRaw);
+                    const jobUnit = j.salaryUnit || 'Monthly';
+                    let comparableValue = jobSalNum;
+                    if (filterUnit === 'LPA' && jobUnit === 'Monthly') {
+                        comparableValue = (jobSalNum * 12) / 100000;
+                    } else if (filterUnit === 'Monthly' && jobUnit === 'LPA') {
+                        comparableValue = (jobSalNum * 100000) / 12;
+                    }
+                    matchesSalary = minSalary === 0 || comparableValue >= minSalary;
+                }
+                return matchesSearch && matchesDesignation && matchesLocation && matchesType && matchesMode && matchesSalary;
+            });
+
+            const container = document.getElementById('job-container');
+            container.innerHTML = filtered.length ? filtered.map(j => `
+                <div class="job-card glass-card p-6 rounded-2xl cursor-pointer transition hover:shadow-xl" onclick="window.location.href='job.html?id=${j.id}'">
+                    <h3 class="text-lg font-bold text-slate-800">${escapeHtml(j.title)}</h3>
+                    <p class="text-sm text-slate-500">${escapeHtml(j.company)}</p>
+                    <div class="flex justify-between text-xs text-slate-500 mb-3 mt-2">
+                        <span>📍 ${escapeHtml(j.location || "Not Specified")}</span>
+                        <span>💼 ${escapeHtml(j.experience || "Freshers")}</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <span class="text-blue-600 font-extrabold">${formatSalary(j)}</span>
+                        <span class="text-xs font-bold text-slate-400">View Details →</span>
+                    </div>
+                </div>
+            `).join('') : '<p class="col-span-full text-center py-10 text-slate-400">No matching opportunities found.</p>';
+        };
+
+        // ADMIN TABLE
+        window.renderAdmin = () => {
+            const tbody = document.getElementById('admin-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = jobs.map(j => {
+                let compDisplay = formatSalary(j);
+                if (compDisplay === "As Per Industry Standards") compDisplay = "🔒 Not Disclosed";
+                else compDisplay = `💰 ${compDisplay}`;
+                return `
+                <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td class="px-6 py-4"><b class="text-slate-800">${escapeHtml(j.title)}</b><br><small class="text-slate-400">${escapeHtml(j.company)}</small></td>
+                    <td class="px-6 py-4 text-center text-sm font-medium text-slate-600">${compDisplay}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="openFormModal('${j.id}')" class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-full text-sm">✏️ Edit</button>
+                        <button onclick="deleteJob('${j.id}')" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded-full text-sm">🗑️ Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+            if (jobs.length === 0) tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-slate-400">No jobs posted yet.</td></tr>';
+        };
+
+        // Save / Update job with "Not Disclosed" handling
+        document.getElementById('job-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-job-id').value || Date.now().toString();
+            const notDisclosed = document.getElementById('salary-not-disclosed').checked;
+            
+            let salaryValue = null;
+            let salaryUnitValue = null;
+            if (!notDisclosed) {
+                let rawSalary = document.getElementById('job-salary').value.trim();
+                if (rawSalary !== "") {
+                    salaryValue = rawSalary;
+                    salaryUnitValue = document.getElementById('job-salary-unit').value;
+                }
+            }
+
+            const jobData = {
+                id,
+                title: document.getElementById('job-title').value.trim(),
+                company: document.getElementById('job-company').value.trim(),
+                type: document.getElementById('job-type').value,
+                mode: document.getElementById('job-mode').value,
+                salary: salaryValue,
+                salaryUnit: salaryUnitValue,
+                experience: document.getElementById('job-experience').value.trim(),
+                location: document.getElementById('job-location').value.trim(),
+                link: document.getElementById('job-link').value.trim(),
+                description: quill ? quill.root.innerHTML : "",
+                postedAt: new Date()
+            };
+            
+            // if salary not disclosed explicitly remove values
+            if (notDisclosed || !salaryValue) {
+                jobData.salary = null;
+                jobData.salaryUnit = null;
+            }
+            
+            await setDoc(doc(db, "jobs", id), jobData);
+            closeModal('form-modal');
+            await loadJobsFromFirebase();
+            showToast(notDisclosed ? "Job saved (Salary hidden)" : "Job published successfully");
+        };
+
+        window.deleteJob = async (id) => {
+            if (confirm("Permanently delete this job posting?")) {
+                await deleteDoc(doc(db, "jobs", id));
+                await loadJobsFromFirebase();
+                showToast("Job deleted");
+            }
+        };
+
+        // Open modal with prefilled values (handles "Not Disclosed")
+        window.openFormModal = (id = null) => {
+            document.getElementById('job-form').reset();
+            document.getElementById('edit-job-id').value = id || "";
+            const notDisclosedCheck = document.getElementById('salary-not-disclosed');
+            notDisclosedCheck.checked = false;
+            document.getElementById('job-salary').disabled = false;
+            document.getElementById('job-salary-unit').disabled = false;
+            
+            if (!quill) {
+                quill = new Quill('#job-description', { theme: 'snow', placeholder: 'Describe responsibilities, perks, requirements...' });
+            } else {
+                quill.root.innerHTML = "";
+            }
+
+            if (id) {
+                const job = jobs.find(x => x.id === id);
+                if (job) {
+                    document.getElementById('job-title').value = job.title || "";
+                    document.getElementById('job-company').value = job.company || "";
+                    document.getElementById('job-type').value = job.type || "Full-time";
+                    document.getElementById('job-mode').value = job.mode || "On-site";
+                    document.getElementById('job-experience').value = job.experience || "";
+                    document.getElementById('job-location').value = job.location || "";
+                    document.getElementById('job-link').value = job.link || "";
+                    quill.root.innerHTML = job.description || "";
+                    
+                    const hasSalary = job.salary && parseFloat(job.salary) > 0;
+                    if (!hasSalary || job.salary === null) {
+                        notDisclosedCheck.checked = true;
+                        document.getElementById('job-salary').disabled = true;
+                        document.getElementById('job-salary-unit').disabled = true;
+                        document.getElementById('job-salary').value = "";
+                    } else {
+                        notDisclosedCheck.checked = false;
+                        document.getElementById('job-salary').disabled = false;
+                        document.getElementById('job-salary-unit').disabled = false;
+                        document.getElementById('job-salary').value = job.salary;
+                        document.getElementById('job-salary-unit').value = job.salaryUnit || "Monthly";
+                    }
+                }
+            } else {
+                // new job: reset state
+                notDisclosedCheck.checked = false;
+                document.getElementById('job-salary').disabled = false;
+                document.getElementById('job-salary-unit').disabled = false;
+                document.getElementById('job-salary').value = "";
+            }
+            document.getElementById('form-modal').classList.remove('hidden');
+        };
+
+        // Toggle salary fields when checkbox changes
+        document.getElementById('salary-not-disclosed')?.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            const salaryInput = document.getElementById('job-salary');
+            const unitSelect = document.getElementById('job-salary-unit');
+            if (isChecked) {
+                salaryInput.disabled = true;
+                unitSelect.disabled = true;
+                salaryInput.value = "";
+            } else {
+                salaryInput.disabled = false;
+                unitSelect.disabled = false;
+            }
+        });
+
+        // Auth & UI helpers
+        window.performFirebaseLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                showToast("Access Granted");
+                navigateTo('admin');
+                closeModal('login-modal');
+            } catch (error) {
+                showToast("Invalid credentials or unauthorized", true);
+            }
+        };
+
+        window.handleLogout = () => { signOut(auth); showToast("Logged out"); navigateTo('seeker'); };
+        window.navigateTo = (view) => {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+            document.getElementById(`view-${view}`).classList.add('active-view');
+            if (view === 'admin') renderAdmin();
+            else filterJobs();
+        };
+        window.checkAdminAuth = () => currentUser ? navigateTo('admin') : document.getElementById('login-modal').classList.remove('hidden');
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.showToast = (msg, isErr = false) => {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toastMsg.style.backgroundColor = isErr ? '#b91c1c' : '#1e293b';
+            toast.style.opacity = "1"; toast.style.transform = "translateY(0)";
+            setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(20px)"; }, 2600);
+        };
+        window.updateSalaryLabel = (val) => {
+            const unit = document.getElementById('filter-salary-unit').value;
+            const valueNum = parseInt(val);
+            document.getElementById('salary-val').innerText = unit === 'LPA' ? `${valueNum} LPA` : `₹${valueNum.toLocaleString()}`;
+            document.getElementById('salary-min-label').innerText = unit === 'LPA' ? "Min LPA" : "Min ₹";
+        };
+        window.resetSalaryRange = () => {
+            const slider = document.getElementById('filter-salary');
+            slider.value = 0;
+            updateSalaryLabel(0);
+            filterJobs();
+        };
+        window.resetAllFilters = () => {
+            document.getElementById('filter-designation').value = "";
+            document.getElementById('filter-location').value = "";
+            document.getElementById('filter-type').value = "";
+            document.getElementById('filter-mode').value = "";
+            document.getElementById('filter-salary').value = 0;
+            updateSalaryLabel(0);
+            document.getElementById('search-input').value = "";
+            filterJobs();
+        };
+        
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.uid === ADMIN_UID) {
+                currentUser = user;
+                document.getElementById('admin-user-info').innerText = `✅ Authorized: ${user.email}`;
+                closeModal('login-modal');
+                if (document.getElementById('view-admin').classList.contains('active-view')) renderAdmin();
+            } else {
+                currentUser = null;
+                if (document.getElementById('view-admin').classList.contains('active-view')) navigateTo('seeker');
+            }
+        });
+
+        loadJobsFromFirebase();
+    </script>
+</body>
+</html>

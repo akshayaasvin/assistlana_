@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistlana</title>
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,Arial}
+html{scroll-behavior:smooth}
+body{background:#f7fbfb;color:#03363d}
+
+/* ================= HEADER ================= */
+header{
+display:flex;justify-content:space-between;align-items:center;
+padding:16px 60px;background:#fff;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-weight:800;
+  color:#0f766e;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+}
+.logo:focus-visible{
+  outline:3px solid rgba(20,184,166,.24);
+  outline-offset:4px;
+  border-radius:8px;
+}
+.logo-img{
+  height:40px;
+  width:auto;
+  display:block;
+}
+
+/* NAV LINKS */
+nav{display:flex;gap:28px}
+nav a{
+text-decoration:none;
+color:#0f766e;
+font-weight:600;
+position:relative;
+opacity:0;
+transform:translateY(-10px);
+animation:navIn .6s forwards;
+}
+nav a:nth-child(1){animation-delay:.2s}
+nav a:nth-child(2){animation-delay:.35s}
+nav a:nth-child(3){animation-delay:.5s}
+
+@keyframes navIn{
+to{opacity:1;transform:none}
+}
+
+nav a::after{
+content:'';
+position:absolute;
+left:0;bottom:-4px;
+width:0;height:2px;
+background:#14b8a6;
+transition:.4s;
+}
+nav a:hover::after{width:100%}
+
+/* HAMBURGER */
+.menu-toggle{
+display:none;
+width:25px;height:20px;
+flex-direction:column;
+justify-content:space-between;
+background:none;border:none;cursor:pointer;
+}
+.menu-toggle span{
+height:3px;background:#0f766e;border-radius:3px;
+transition:.35s;
+}
+.menu-toggle.active span:nth-child(1){
+transform:translateY(10px) rotate(45deg)
+}
+.menu-toggle.active span:nth-child(2){
+opacity:0
+}
+.menu-toggle.active span:nth-child(3){
+transform:translateY(-10px) rotate(-45deg)
+}
+
+/* MOBILE NAV */
+@media(max-width:768px){
+.menu-toggle{display:flex}
+nav{
+position:absolute;
+top:100%;left:0;right:0;
+background:#fff;
+flex-direction:column;
+padding:20px;
+gap:16px;
+box-shadow:0 25px 60px rgba(0,0,0,.15);
+border-radius:0 0 22px 22px;
+transform:translateY(-20px) scale(.98);
+opacity:0;pointer-events:none;
+transition:.35s ease;
+}
+nav.active{
+transform:translateY(0) scale(1);
+opacity:1;pointer-events:auto;
+}
+}
+
+/* ================= HERO ================= */
+.hero{
+  display:flex;align-items:center;gap:50px;justify-content:space-between;
+  padding:90px 60px;
+  background:linear-gradient(120deg,#0f766e 0%, #14b8a6 40%, #0ea5a1 100%);
+  color:#fff;border-radius:0 0 60px 60px;
+  position:relative;overflow:visible;
+  --reveal-duration: .9s;
+}
+/* keep hero content in two columns: left (text) and right (image) */
+.hero-left{flex:1 1 56%;min-width:260px}
+.hero-right{flex:0 0 420px;display:flex;align-items:center;justify-content:flex-end;position:relative}
+.hero-img{display:block;width:100%;height:auto;max-width:420px;border-radius:24px;box-shadow:0 30px 60px rgba(0,0,0,.28);position:relative;z-index:2;transform-origin:center center;will-change:transform,opacity;transition:transform .9s cubic-bezier(.2,.9,.2,1),opacity .9s}
+
+/* HERO IMAGE ENTRY + CONTINUOUS KEN-BURNS */
+.hero-img.entry{animation:heroImgEntry var(--reveal-duration) cubic-bezier(.2,.9,.2,1) both}
+.hero-img.kenburns{animation:heroImgKenburns 18s ease-in-out 1.05s infinite;transform-origin:center center}
+
+@keyframes heroImgEntry{
+  0%{opacity:0;transform:translateY(18px) scale(1.06) rotate(-1deg)}
+  60%{opacity:1;transform:translateY(0) scale(1.02) rotate(-0.4deg)}
+  100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
+}
+@keyframes heroImgKenburns{
+  0%{transform:scale(1) translateY(0) rotate(0deg)}
+  50%{transform:scale(1.04) translateY(-6px) rotate(.3deg)}
+  100%{transform:scale(1) translateY(0) rotate(0deg)}
+}
+
+/* when reduced motion is requested, disable both entry and continuous motion */
+@media (prefers-reduced-motion:reduce){
+  .hero-img.entry, .hero-img.kenburns{animation:none!important;transform:none!important;opacity:1}
+}
+
+/* decorative animated SVG that sits behind the hero image */
+.hero-decor{position:absolute;right:6px;top:6%;width:260px;height:260px;pointer-events:none;z-index:1;transform:translateZ(0)}
+.hero-decor .dec-bubble{transform-origin:center;will-change:transform,opacity}
+.hero-decor .dec-bubble-1{animation:floatSlow 7.8s ease-in-out infinite;opacity:.98}
+.hero-decor .dec-bubble-2{animation:floatFast 5.6s ease-in-out .25s infinite;opacity:.9}
+.hero-decor .dec-bubble-3{animation:floatTiny 9.2s ease-in-out .1s infinite;opacity:.7}
+
+@keyframes floatSlow{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(4deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes floatFast{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(-6deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes floatTiny{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(8deg)}100%{transform:translateY(0) rotate(0deg)}}
+
+/* reduce motion / mobile fallbacks */
+@media (prefers-reduced-motion:reduce){
+  .hero-decor, .hero-decor .dec-bubble{animation:none!important;opacity:1}
+}
+@media(max-width:760px){
+  .hero-decor{display:block;right:50%;transform:translateX(50%);top:8%;width:200px;height:200px;opacity:.9}
+} 
+
+/* animated background shimmer (shared) */
+.hero::before{
+  content:'';position:absolute;inset:0;border-radius:0 0 60px 60px;mix-blend-mode:screen;opacity:.12;
+  background:linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06), rgba(255,255,255,0.12));
+  background-size:200% 100%;transform:translateZ(0);
+  transition:opacity .6s;
+  animation:heroBgShift 6s linear infinite;
+}
+@keyframes heroBgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* base (fallback) reveal behaviour */
+.hero .hero-left, .hero .hero-right{position:relative;overflow:visible}
+.hero h1, .hero p{opacity:0;transform:translateY(28px) scale(.995);transition:opacity var(--reveal-duration) cubic-bezier(.2,.9,.2,1), transform var(--reveal-duration) cubic-bezier(.2,.9,.2,1);will-change:transform,opacity}
+.hero img{width:420px;border-radius:24px;display:block;box-shadow:0 30px 60px rgba(0,0,0,.28);transform:translateY(18px) scale(.985);opacity:0;clip-path: inset(100% 0 0 0);transition:clip-path calc(var(--reveal-duration) * 1.05) cubic-bezier(.2,.9,.2,1), opacity var(--reveal-duration), transform calc(var(--reveal-duration) * 1.05);will-change:clip-path,transform,opacity}
+
+/* VARIANT: split (default) - curtain + stagger */
+.anim-split .hero h1{transform:translateY(28px)}
+.anim-split .hero p{transform:translateY(22px)}
+.anim-split .hero img{clip-path: inset(100% 0 0 0);opacity:0}
+.anim-split .hero.show h1{opacity:1;transform:none;transition-delay:.06s}
+.anim-split .hero.show p{opacity:1;transform:none;transition-delay:.14s}
+.anim-split .hero.show img{opacity:1;clip-path: inset(0 0 0 0);transform:none;transition-delay:.22s}
+
+/* VARIANT: fade - simple, elegant */
+.anim-fade .hero h1{transform:translateY(6px) scale(.998);opacity:0}
+.anim-fade .hero p{transform:translateY(6px);opacity:0}
+.anim-fade .hero img{transform:scale(.98);opacity:0;clip-path:none}
+.anim-fade .hero.show h1,.anim-fade .hero.show p,.anim-fade .hero.show img{opacity:1;transform:none;transition-delay:.06s}
+
+/* VARIANT: slide-3d - dramatic lateral 3D slide */
+.anim-slide-3d .hero h1{transform:translateX(-48px) translateZ(-40px) rotateY(6deg);opacity:0}
+.anim-slide-3d .hero p{transform:translateX(-36px) translateZ(-20px) rotateY(4deg);opacity:0}
+.anim-slide-3d .hero img{transform:translateX(80px) rotateY(-20deg) translateZ(60px) scale(.86);opacity:0;clip-path:none}
+.anim-slide-3d .hero.show h1,.anim-slide-3d .hero.show p,.anim-slide-3d .hero.show img{opacity:1;transform:none;transition-delay:.08s}
+
+/* VARIANT: zoom-spin - pop + rotate */
+.anim-zoom-spin .hero h1{transform:scale(.9) rotate(-2deg) translateY(12px);opacity:0}
+.anim-zoom-spin .hero p{transform:scale(.95) translateY(10px);opacity:0}
+.anim-zoom-spin .hero img{transform:scale(.84) rotate(6deg);opacity:0;clip-path:none}
+.anim-zoom-spin .hero.show h1,.anim-zoom-spin .hero.show p,.anim-zoom-spin .hero.show img{opacity:1;transform:none;transition-delay:.06s}
+
+/* VARIANT: flip - card-like flip entrance */
+.anim-flip .hero h1{transform:rotateX(70deg) translateY(18px);opacity:0;transform-origin:center top}
+.anim-flip .hero p{transform:rotateX(60deg) translateY(14px);opacity:0;transform-origin:center top}
+.anim-flip .hero img{transform:rotateY(90deg) translateZ(20px) scale(.9);opacity:0;clip-path:none}
+.anim-flip .hero.show h1,.anim-flip .hero.show p,.anim-flip .hero.show img{opacity:1;transform:none;transition-delay:.08s}
+
+/* CARD adjustments per-variant (keeps individual card poses but shifts intensity) */
+.anim-fade #programs .card{transform:translateY(18px) scale(.99);opacity:0}
+.anim-slide-3d #programs .card{transform:translateZ(-40px) translateY(18px) scale(.98);opacity:0}
+.anim-zoom-spin #programs .card{transform:scale(.72) translateY(18px) translateZ(-40px);opacity:0}
+.anim-flip #programs .card{transform:rotateX(18deg) translateY(22px) translateZ(-20px);opacity:0}
+
+/* preserve the specific left/zoom/right poses but allow variants to override intensity */
+.anim-slide-3d #programs .card.from-left{transform:translateX(-160px) translateZ(-80px) rotateY(-22deg)}
+.anim-slide-3d #programs .card.from-right{transform:translateX(160px) translateZ(-80px) rotateY(22deg)}
+.anim-zoom-spin #programs .card.zoom-in{transform:translateZ(-180px) scale(.58)}
+
+/* visible state for cards (shared) */
+.anim-split #programs .card.show,.anim-fade #programs .card.show,.anim-slide-3d #programs .card.show,.anim-zoom-spin #programs .card.show,.anim-flip #programs .card.show{opacity:1;transform:none;box-shadow:0 40px 110px rgba(2,132,124,.15)}
+
+/* reduced motion & mobile fallbacks */
+@media (prefers-reduced-motion:reduce){
+  .hero::before, .hero, .hero img, .hero h1, .hero p{animation:none;transition:none}
+  .hero img{clip-path:none;opacity:1;transform:none}
+  [class^="anim-"] .hero h1,[class^="anim-"] .hero p,[class^="anim-"] .hero img,[class^="anim-"] #programs .card{transition:none;transform:none;opacity:1}
+}
+@media(max-width:768px){
+  .hero{flex-direction:column;text-align:center;padding:60px 24px}
+  .hero img{width:320px;margin-top:28px;clip-path:none;opacity:1;transform:none}
+  .hero.show{animation:none}
+  [class^="anim-"] #programs .card{transform:none}
+}
+
+
+/* ================= SECTION ================= */
+.section{padding:90px 60px}
+
+/* reduce vertical gap between adjacent sections */
+.section + .section{padding-top:40px}
+
+/* remove extra bottom margin on the last program card */
+#programs .card:last-child{margin-bottom:0}
+
+/* PROGRAM CARD */
+.card{
+  display:flex;gap:40px;align-items:center;
+  background:#fff;
+  padding:35px;
+  border-radius:30px;
+  margin-bottom:60px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15);
+  opacity:0;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  transition:transform .9s cubic-bezier(.2,.9,.2,1), opacity .9s cubic-bezier(.2,.9,.2,1), box-shadow .6s;
+  will-change:transform,opacity;
+}
+/* pronounced 3D entry poses */
+.from-left{transform:translateX(-140px) translateZ(-60px) rotateY(-18deg); transform-origin:left center}
+.zoom-in{transform:translateZ(-120px) scale(.72) rotateX(6deg); transform-origin:center center}
+.from-right{transform:translateX(140px) translateZ(-60px) rotateY(18deg); transform-origin:right center}
+
+/* staggered entrance so cards appear in sequence */
+#programs .card:nth-child(1){transition-delay:0.08s}
+#programs .card:nth-child(2){transition-delay:0.18s}
+#programs .card:nth-child(3){transition-delay:0.28s}
+
+/* final visible state */
+.card.show{opacity:1;transform:none;box-shadow:0 40px 110px rgba(2,132,124,.15)}
+
+/* interactive 3D hover (subtle) */
+.card:hover{transform:translateY(-12px) translateZ(16px) rotateX(4deg);box-shadow:0 50px 120px rgba(2,132,124,.22)}
+
+/* accessibility/performance: remove heavy 3D on small screens */
+@media(max-width:768px){
+  .card{flex-direction:column;transition-duration:.6s}
+  .from-left,.from-right,.zoom-in{transform:none}
+  #programs .card:nth-child(1),#programs .card:nth-child(2),#programs .card:nth-child(3){transition-delay:0s}
+}
+
+
+/* CAROUSEL */
+.carousel{
+  /* keep the existing height (unchanged) and make width equal to height → square */
+  --card-img-size:220px; /* current height preserved */
+  width:var(--card-img-size);
+  height:var(--card-img-size);
+  position:relative;overflow:hidden;
+  border-radius:22px;
+  flex-shrink:0; /* prevent the image from shrinking in the card row */
+}
+.carousel img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;opacity:0;
+  transition:1s;
+  border-radius:inherit;
+}
+.carousel img.active{opacity:1}
+
+/* Responsive note: on very small screens we can scale the square down — tell me if you want that */
+@media(max-width:420px){
+  /* keeping height unchanged on desktop; reduce both dimensions on very narrow screens for usability */
+  .carousel{--card-img-size:180px}
+}
+
+.card h3{font-size:26px;font-weight:700}
+.card p{margin-top:10px;line-height:1.6}
+
+/* ================= ACHIEVEMENTS ================= */
+.achievements{text-align:center}
+.achievements h2{
+font-size:34px;font-weight:800;color:#0f766e
+}
+.achievement-list{
+display:flex;justify-content:center;
+gap:24px;margin-top:40px;
+}
+.achievement{
+background:#fff;
+padding:28px 22px;
+border-radius:22px;
+width:220px;
+box-shadow:0 20px 45px rgba(0,0,0,.12);
+transition:.4s;
+cursor:pointer;
+}
+.achievement:hover{
+transform:translateY(-10px) scale(1.05);
+box-shadow:0 30px 70px rgba(20,184,166,.35)
+}
+.counter{
+  font-size:32px;
+  font-weight:800;
+  color:#0f766e;
+  display:inline-block;
+}
+/* show a permanent plus sign after each counter (keeps JS unchanged) */
+.counter::after{
+  content:'+';
+  margin-left:6px;
+  font-weight:700;
+  color:inherit;
+}
+
+/* ================= FOOTER ================= */
+footer{
+background:#0b0b0b;
+color:#d1fae5;
+padding:40px 20px;
+margin-top:60px;
+}
+.footer-inner{
+max-width:1100px;margin:auto;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:25px;
+}
+footer h4{margin-bottom:10px}
+.footer-copy{
+text-align:center;
+margin-top:30px;
+opacity:.7
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.hero{flex-direction:column;text-align:center}
+.section{padding:60px 24px}
+.card{flex-direction:column}
+.achievement-list{flex-wrap:wrap}
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+<a class="logo" href="https://assistlana.com" target="_blank" rel="noopener" aria-label="Assistlana — opens in new tab">
+<img src="photo/logo.jpeg" alt="Assistlana logo" class="logo-img">
+</a>
+
+<button class="menu-toggle" id="menuBtn">
+<span></span><span></span><span></span>
+</button>
+
+<nav id="nav">
+<a href="index.html">About Us</a>
+<a href="growth-path.html">Growth Path</a>
+<a href="assistlana.html">Browse Jobs</a>
+</nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+<div>
+<h1>IN-CAMPUS TRAINING</h1>
+<p>Our In-Campus Training programs are designed to bridge the gap between academic learning and industry expectations. We focus on delivering practical knowledge, real-world exposure, and hands-on experience to prepare students for professional careers.</p>
+</div>
+<img src="photo/header photo.jpeg">
+</section>
+
+<!-- PROGRAMS -->
+<section class="section" id="programs">
+
+<div class="card from-left">
+<div class="carousel">
+<img src="photo/training.jpeg" class="active">
+<img src="photo/training 2.jpeg">
+<img src="photo/training 3.jpeg">
+</div>
+<div>
+<h3>Technical Skills</h3>
+<p>We deliver structured technical training focused on building strong fundamentals, problem-solving abilities, and job-ready expertise.We focus on strengthening core technical concepts using real-world tools and project-based training.
+This approach ensures learners are confident, competent, and job-ready for modern workplaces.
+</p>
+</div>
+</div>
+
+<div class="card zoom-in">
+<div class="carousel">
+<img src="photo/sftskl.jpeg" class="active">
+<img src="photo/soft skill.jpeg">
+</div>
+<div>
+<h3>Soft Skills</h3>
+<p>Our soft skills training develops strong communication, teamwork, and interpersonal abilities.
+Students are trained to build confidence, leadership qualities, and professional workplace behavior.
+This program prepares individuals to perform effectively in interviews and real corporate environments.</p>
+</div>
+</div>
+
+<div class="card from-right">
+<div class="carousel">
+<img src="photo/workshop.jpeg" class="active">
+<img src="photo/wrkshp.3.jpeg">
+</div>
+<div>
+<h3>Workshop</h3>
+<p>Our workshops provide hands-on learning through real-time projects and practical sessions.
+Students gain industry exposure by working on current tools, technologies, and case studies.
+These sessions help bridge the gap between academic knowledge and real-world application.</p>
+</div>
+</div>
+
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section class="section achievements" id="about">
+<h2>Our Achievements</h2>
+
+<div class="achievement-list">
+<div class="achievement">
+<div class="counter" data-target="3000">0</div>
+<p>Students Trained</p>
+</div>
+<div class="achievement">
+<div class="counter" data-target="500">0</div>
+<p>Workshops Conducted</p>
+</div>
+<div class="achievement">
+<div class="counter" data-target="100">0</div>
+<p>Placement Support</p>
+</div>
+<div class="achievement">
+<div class="counter" data-target="50">0</div>
+<p>Industry Partners</p>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer id="jobs">
+<div class="footer-inner">
+<div>
+<h4>Assistlana</h4>
+<p>Empowering students with skills and confidence.</p>
+</div>
+<div>
+<h4>Quick Links</h4>
+<p>About Us</p>
+<p>Programs</p>
+<p>Careers</p>
+</div>
+<div>
+<h4>Contact</h4>
+<p>📧 Email: hr@assistlana.com</p>
+<p>📞 Phone: +91 8553451935</p>
+</div>
+</div>
+<div class="footer-copy">© 2026 Assistlana. All Rights Reserved</div>
+</footer>
+
+<script>
+/* HERO ENTRY */
+window.addEventListener('load',()=>{
+  const hero = document.querySelector('.hero');
+  const heroImg = hero.querySelector('.hero-img');
+
+  // available variants (add more names here if needed)
+  const VARIANTS = ['split','fade','slide-3d','zoom-spin','flip'];
+  const params = new URLSearchParams(location.search);
+  let chosen = params.get('anim');
+
+  // respect reduced-motion: force a static, simple variant and disable image motion
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){ chosen = 'fade'; }
+
+  // allow URL override, otherwise pick random
+  if(!chosen || !VARIANTS.includes(chosen)){
+    chosen = VARIANTS[Math.floor(Math.random()*VARIANTS.length)];
+  }
+
+  // apply variant class on the root so CSS can target it
+  document.documentElement.classList.remove(...Array.from(document.documentElement.classList).filter(c=>c.startsWith('anim-')));
+  document.documentElement.classList.add(`anim-${chosen}`);
+
+  // reveal hero (small tick so CSS initial state applies)
+  requestAnimationFrame(()=> setTimeout(()=> hero.classList.add('show'), 30));
+
+  // HERO IMAGE ENTRY: add 'entry' class on first visibility, then start kenburns
+  const ENTRY_MS = 900; // matches --reveal-duration
+  function runHeroImgEntry(){
+    if(!heroImg || reduced) return;
+    heroImg.classList.remove('kenburns');
+    // trigger entry
+    heroImg.classList.add('entry');
+    // after entry finishes, keep a subtle kenburns loop
+    clearTimeout(heroImg._kbTimer);
+    heroImg._kbTimer = setTimeout(()=>{
+      heroImg.classList.remove('entry');
+      heroImg.classList.add('kenburns');
+    }, ENTRY_MS + 80);
+  }
+
+  // run on load (if hero is already in viewport) or when it becomes visible
+  const rect = hero.getBoundingClientRect();
+  if(rect.top < window.innerHeight && rect.bottom > 0){
+    // in view — run shortly after hero reveal so it's visible
+    setTimeout(runHeroImgEntry, 260);
+  } else if(!reduced && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries, obs)=>{
+      entries.forEach(en=>{ if(en.isIntersecting){ runHeroImgEntry(); obs.disconnect(); } });
+    },{threshold:.45});
+    io.observe(hero);
+  }
+
+  // let card IntersectionObserver continue to reveal on scroll; also seed an initial reveal for above-the-fold cards
+  document.querySelectorAll('#programs .card').forEach((c,i)=>{
+    const r = c.getBoundingClientRect();
+    if(r.top < window.innerHeight) setTimeout(()=>c.classList.add('show'), 220 + i*120);
+  });
+
+  /* pointer parallax: only for non-reduced motion and for selected variants */
+  const parallaxAllowed = !reduced && ['split','slide-3d','zoom-spin'].includes(chosen);
+  if(parallaxAllowed){
+    const img = hero.querySelector('img');
+    let raf = null;
+    hero.addEventListener('pointermove', e=>{
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(()=>{
+        const r = hero.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width/2)) / r.width; // -0.5..0.5
+        const dy = (e.clientY - (r.top + r.height/2)) / r.height;
+        img.style.transform = `translate3d(${dx * 10}px, ${dy * 8}px, 0) scale(1.02)`;
+      });
+    });
+    hero.addEventListener('pointerleave', ()=>{ img.style.transform = ''; });
+  }
+});
+
+/* MOBILE MENU */
+const btn=document.getElementById('menuBtn');
+const nav=document.getElementById('nav');
+btn.onclick=()=>{
+btn.classList.toggle('active');
+nav.classList.toggle('active');
+};
+
+/* SCROLL TOP */
+function scrollToTop(){
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* CARD ENTER */
+const obs=new IntersectionObserver(e=>{
+e.forEach(x=>{
+if(x.isIntersecting)x.target.classList.add('show');
+})
+},{threshold:.3});
+document.querySelectorAll('.card').forEach(c=>obs.observe(c));
+
+/* CAROUSEL */
+document.querySelectorAll('.carousel').forEach(car=>{
+let imgs=car.querySelectorAll('img');
+let i=0;
+setInterval(()=>{
+imgs[i].classList.remove('active');
+i=(i+1)%imgs.length;
+imgs[i].classList.add('active');
+},3000);
+});
+
+/* COUNTER */
+const counters=document.querySelectorAll('.counter');
+const counterObs=new IntersectionObserver(e=>{
+e.forEach(x=>{
+if(x.isIntersecting){
+let el=x.target;
+let target=+el.dataset.target;
+let c=0;
+let inc=target/60;
+let run=setInterval(()=>{
+c+=inc;
+if(c>=target){el.innerText=target;clearInterval(run);}
+else el.innerText=Math.floor(c);
+},20);
+counterObs.unobserve(el);
+}
+});
+},{threshold:.6});
+counters.forEach(c=>counterObs.observe(c));
+</script>
+
+</body>
+</html>
+

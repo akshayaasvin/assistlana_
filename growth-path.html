@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Path - Assistlana</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #14b8a6;
+            --accent: #06b6d4;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #164e63 50%, #0d9488 100%);
+            min-height: 100vh;
+        }
+
+        /* Clean Vertical Timeline with Circular Image Nodes */
+        .vertical-timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        /* Vertical line connecting all nodes */
+        .vertical-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom, 
+                rgba(14, 165, 233, 0.8) 0%,
+                rgba(6, 182, 212, 0.8) 25%,
+                rgba(20, 184, 166, 0.8) 50%,
+                rgba(6, 182, 212, 0.8) 75%,
+                rgba(14, 165, 233, 0.8) 100%);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 50px rgba(14, 165, 233, 0.3);
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 4rem;
+            padding: 0 2rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Alternate left and right positioning */
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        /* Circular image node */
+        .timeline-node {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            min-width: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid rgba(255, 255, 255, 0.6);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(20, 184, 166, 0.1));
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.6),
+                        0 0 25px rgba(14, 165, 233, 0.4),
+                        inset 0 0 20px rgba(20, 184, 166, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4, #14b8a6);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .timeline-node:hover {
+            transform: scale(1.15);
+            border-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 60px rgba(6, 182, 212, 0.9),
+                        0 0 100px rgba(14, 165, 233, 0.7),
+                        inset 0 0 30px rgba(20, 184, 166, 0.5);
+        }
+
+        .timeline-node:hover::before {
+            opacity: 1;
+        }
+
+        /* Image inside circular container */
+        .timeline-node img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .timeline-node:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Stage badge on image */
+        /* (Removed stage label overlay inside circles as per request) */
+
+        /* Content card */
+        .timeline-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 0 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: 3rem;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-right: 3rem;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.4),
+                        0 0 30px rgba(14, 165, 233, 0.2);
+        }
+
+        .timeline-content h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timeline-content p {
+            color: #475569;
+            line-height: 1.5;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content .duration {
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .vertical-timeline::before {
+                left: 2rem;
+            }
+
+            .timeline-item {
+                flex-direction: row !important;
+                padding-left: 4rem;
+                margin-bottom: 3rem;
+            }
+
+            .timeline-node {
+                width: 150px;
+                height: 150px;
+                min-width: 150px;
+            }
+
+            .timeline-content {
+                margin-left: 1.5rem !important;
+                margin-right: 0 !important;
+                padding: 1.25rem;
+                flex: 1;
+            }
+            
+            .timeline-content h3 {
+                font-size: 1.15rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .timeline-content p {
+                font-size: 0.85rem;
+                line-height: 1.4;
+                margin-bottom: 0.25rem;
+            }
+            
+            .timeline-content .duration {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .vertical-timeline::before {
+                left: 1.5rem;
+            }
+
+            .timeline-item {
+                padding-left: 3rem;
+                margin-bottom: 2.5rem;
+            }
+
+            .timeline-node {
+                width: 120px;
+                height: 120px;
+                min-width: 120px;
+            }
+
+            .timeline-content {
+                padding: 1rem;
+            }
+            
+            .timeline-content h3 {
+                font-size: 1rem;
+                margin-bottom: 0.4rem;
+            }
+            
+            .timeline-content p {
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+        }
+        
+        /* Professional button styling */
+        .bg-secondary, .bg-primary {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bg-secondary:hover, .bg-primary:hover {
+            box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .bg-secondary {
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+        }
+        
+        .bg-primary {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+        }
+        
+        /* Mobile navigation responsive */
+        @media (max-width: 768px) {
+            .flex.flex-wrap.items-center.gap-2 {
+                gap: 0.5rem;
+                flex-wrap: nowrap;
+            }
+            
+            /* Section heading responsive */
+            .text-5xl {
+                font-size: 2.5rem;
+            }
+            
+            .text-xl {
+                font-size: 1rem;
+            }
+            
+            .py-16 {
+                padding: 2rem 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Smaller heading for mobile */
+            .text-5xl {
+                font-size: 1.75rem;
+            }
+            
+            .text-xl {
+                font-size: 0.9rem;
+            }
+            
+            .py-16 {
+                padding: 1.5rem 0;
+            }
+        }
+        
+        /* Grid Cards Section Styles */
+        .grid-cards-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .grid-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(20, 184, 166, 0.15));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grid-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 12px 40px rgba(6, 182, 212, 0.4),
+                        0 0 30px rgba(14, 165, 233, 0.3);
+        }
+
+        .grid-card:hover::before {
+            opacity: 1;
+        }
+
+        .grid-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid-card p {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .grid-cards-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .grid-card {
+                padding: 1.5rem;
+            }
+            
+            .grid-card h3 {
+                font-size: 1.25rem;
+            }
+            
+            .grid-card p {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .grid-card {
+                padding: 1.25rem;
+            }
+            
+            .grid-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .grid-card p {
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* What We Offer Section Styles */
+        .offer-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .offer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .offer-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .offer-card p {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .offer-card {
+                padding: 1.5rem;
+            }
+            
+            .offer-card h3 {
+                font-size: 1.25rem;
+            }
+            
+            .offer-card p {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .offer-card {
+                padding: 1.25rem;
+            }
+            
+            .offer-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .offer-card p {
+                font-size: 0.85rem;
+            }
+        }
+
+            .grid-card a {
+                display: block;
+                height: 100%;
+                width: 100%;
+                text-decoration: none;
+                color: inherit;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Assistlana Logo" class="h-10 w-auto object-contain drop-shadow-lg">
+                    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Assistlana</h1>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex flex-wrap items-center gap-2 md:gap-4">
+                    <a href="index.html" class="px-3 md:px-4 py-2 rounded-full bg-blue-500 text-white font-semibold hover:bg-blue-600 transition duration-150 shadow-md hover:shadow-lg text-sm md:text-base">About Us</a>
+                    <a href="growth-path.html" class="px-3 md:px-4 py-2 rounded-full bg-secondary text-white font-semibold hover:bg-emerald-600 transition duration-150 shadow-md hover:shadow-lg text-sm md:text-base">
+                        Growth Path
+                    </a>
+                    <a href="assistlana.html" class="px-3 md:px-4 py-2 rounded-full bg-primary text-white font-semibold hover:bg-blue-600 transition duration-150 shadow-md hover:shadow-lg text-sm md:text-base">
+                        Browse Jobs
+                    </a>
+                </div>
+                
+                <!-- Mobile Hamburger Menu -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-3 space-y-2">
+                <a href="index.html" class="block px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition duration-150 shadow-md hover:shadow-lg text-sm">About Us</a>
+                <a href="growth-path.html" class="block px-4 py-2 rounded-lg bg-secondary text-white font-semibold hover:bg-emerald-600 transition duration-150 shadow-md hover:shadow-lg text-sm">Growth Path</a>
+                <a href="assistlana.html" class="block px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-blue-600 transition duration-150 shadow-md hover:shadow-lg text-sm">Browse Jobs</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Growth Path Timeline Section -->
+    <section class="py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
+                    Our Milestone Journey
+                </h2>
+                <p class="text-lg text-white/90 mb-2">Build. Grow. Lead. Repeat.</p>
+                <div class="w-32 h-1 bg-white/50 mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Grid Cards Section -->
+            <div class="grid-cards-section">
+                <!-- Job Fair Card -->
+                <div class="grid-card">
+                    <a href="job-fair.html">
+                        <h3>Job Fair</h3>
+                        <p>
+                            Explore multiple job opportunities from various companies in one event.
+                            Network with recruiters and discover your ideal role.
+                        </p>
+                    </a>
+                </div>
+
+                <div class="grid-card">
+                    <a href="campus-drive.html">
+                        <h3>In-Campus Drive</h3>
+                        <p>
+                            Get hired directly through structured on-campus recruitment.
+                            Meet with company representatives and secure your career start.
+                        </p>
+                    </a>
+                </div>
+
+
+                <!-- Campus  Training Card -->
+                <div class="grid-card">
+                    <a href="In_campus_Training.html">
+                        <h3>In campus Training</h3>
+                        <p>Participate in off-campus recruitment events.
+                            A second chance to connect with employers and explore new opportunities.
+                        </p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Clean Vertical Timeline -->
+            <div class="vertical-timeline">
+                <!-- Stage 1: Intern -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2019.jpeg" alt="Intern">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2019 – 2020 : Foundation & Vision Development</h3>
+                        <p><strong>Establishing Strategic Direction:</strong>The organization focused on building its core vision of bridging the gap between academia and industry. Extensive research was conducted to understand industry skill requirements, and structured training frameworks were designed to enhance student employability and career readiness.</p>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Junior -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2020.jpeg" alt="Junior">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2020 – 2021 : Strengthening Industry-Relevant Learning</h3>
+                        <p><strong>Strengthening Skill Development Frameworks:</strong>The organization concentrated on aligning training programs with evolving industry standards. Collaborative discussions with corporate professionals helped design specialized technical and career development modules, ensuring students gained practical and job-oriented skills.</p>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Mid-Level -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2021.jpeg" alt="Mid-Level">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2021 – 2022 : Organizational Establishment & Expansion</h3>
+                        <p><strong>Building Academic and Corporate Partnerships:</strong>Following its official establishment, the organization expanded its presence by collaborating with multiple educational institutions. MOUs were signed to provide technical training, placement support, and career development programs, strengthening the industry-academia connection.</p>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Senior -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2022.jpeg" alt="Senior">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2022 – 2023 : Training & Campus Engagement Growth</h3>
+                        <p><strong>Conducting Campus Drives and Career Programs:</strong>During this phase, the organization actively conducted campus recruitment drives and career-focused training programs across various colleges. These initiatives helped students gain industry exposure and prepared them for corporate career opportunities.</p>
+                    </div>
+                </div>
+
+                <!-- Stage 5: Lead / Manager -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2023.jpeg" alt="Lead">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2023 – 2024 : Large-Scale Recruitment & Industry Expansion</h3>
+                        <p><strong>Mega Job Fairs and HR Manpower Support:</strong> The organization hosted large-scale job fairs and delivered in-campus and online training programs for thousands of students. It facilitated numerous placement opportunities and expanded HR manpower services across industries including Banking, Production, Pharmaceuticals, and IT sectors.</p>
+                    </div>
+                </div>
+
+                <!-- Stage 6: Director / Executive -->
+                <div class="timeline-item">
+                    <div class="timeline-node">
+                        <img src="2024.jpeg" alt="Director">
+                    </div>
+                    <div class="timeline-content">
+                        <h3>2024 – 2025 : Strategic Institutional Collaborations</h3>
+                        <p><strong>Expanding Long-Term Academic Partnerships:</strong> During this period, the organization strengthened its collaboration with multiple colleges through MOUs for technical training and recruitment drives. Advanced skill development programs and employer engagement initiatives were introduced to improve workforce readiness.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold mb-4">Assistlana</h3>
+                    <p class="text-gray-400">Connecting talent with opportunity since 2024.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="frontpage.html" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="growth-path.html" class="hover:text-white transition">Growth Path</a></li>
+                        <li><a href="assisstlena.html" class="hover:text-white transition">Browse Jobs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Let's Connect</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 bg-secondary rounded-full"></span>
+                            <span>+91 8553451935</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 bg-secondary rounded-full"></span>
+                            <span>hr@assistlana.com</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 bg-secondary rounded-full"></span>
+                            <span>www.assistlana.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Assistlana. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    // Mobile menu toggle functionality
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+            mobileMenu.classList.add('hidden');
+        }
+    });
+</script>
+</html>
